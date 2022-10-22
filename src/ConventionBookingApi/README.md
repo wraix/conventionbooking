@@ -1,0 +1,15 @@
+# Convention Booking API
+
+A case study in building a JWT JSON WebAPI in C# using for a Convention Booking System.
+
+## Build it
+
+```bash
+docker build . -t conventionbookingapi
+```
+
+## Run it
+
+```bash
+docker run --name conventionbookingapi -p 8081:80 -d conventionbookingapi
+```
