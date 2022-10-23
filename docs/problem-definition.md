@@ -49,3 +49,8 @@ Develop and present a solution that facilitates conventions with a series of tal
 [] A developer is implementing a solution and wants to know wether a user is logged in, how can that be achived?
   [] If done in a browser client-side, how is the communication protected?
 
+
+
+## Discussion of Security Implications
+
+https://openid.net/specs/openid-connect-core-1_0.html#Security
