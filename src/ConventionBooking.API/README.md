@@ -5,11 +5,11 @@ A case study in building a JWT JSON WebAPI in C# using for a Convention Booking 
 ## Build it
 
 ```bash
-docker build . -t conventionbookingapi
+docker build . -t api-convention-booking
 ```
 
 ## Run it
 
 ```bash
-docker run --name conventionbookingapi -p 8081:80 -d conventionbookingapi
+docker run --name api-convention-booking -p 8081:80 -d api-convention-booking
 ```

@@ -633,11 +633,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/maka/git/wraix/lego/case-booking/src/ConventionBookingApi/ConventionBookingApi.csproj",
-      "projectName": "ConventionBookingApi",
-      "projectPath": "/Users/maka/git/wraix/lego/case-booking/src/ConventionBookingApi/ConventionBookingApi.csproj",
+      "projectUniqueName": "/Users/maka/git/wraix/lego/case-booking/src/API.ConventionBooking/API.ConventionBooking.csproj",
+      "projectName": "API.ConventionBooking",
+      "projectPath": "/Users/maka/git/wraix/lego/case-booking/src/API.ConventionBooking/API.ConventionBooking.csproj",
       "packagesPath": "/Users/maka/.nuget/packages/",
-      "outputPath": "/Users/maka/git/wraix/lego/case-booking/src/ConventionBookingApi/obj/",
+      "outputPath": "/Users/maka/git/wraix/lego/case-booking/src/API.ConventionBooking/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/maka/.nuget/NuGet/NuGet.Config"

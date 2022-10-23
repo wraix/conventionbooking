@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "azUY5lzjS/A3PdObDvp9YHdQRS9orSF3jBWrLi/OG2ecnQqLVsnXswpJrDdhLuoB9JhsA60YuL9ICXqoFEU+Jw==",
+  "dgSpecHash": "XKjtT1JZAVo5q5a7oaAI94WqXoGnfz0athgK8TklpLSX9sxzUWImY81h5MPUCAdr+lXov0iLD7s+WIYxaT8ZHg==",
   "success": true,
-  "projectFilePath": "/Users/maka/git/wraix/lego/case-booking/src/ConventionBookingApi/ConventionBookingApi.csproj",
+  "projectFilePath": "/Users/maka/git/wraix/lego/case-booking/src/API.ConventionBooking/API.ConventionBooking.csproj",
   "expectedPackageFiles": [
     "/Users/maka/.nuget/packages/microsoft.aspnetcore.authentication.jwtbearer/6.0.10/microsoft.aspnetcore.authentication.jwtbearer.6.0.10.nupkg.sha512",
     "/Users/maka/.nuget/packages/microsoft.csharp/4.5.0/microsoft.csharp.4.5.0.nupkg.sha512",
