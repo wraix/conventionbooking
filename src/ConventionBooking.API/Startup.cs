@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Reflection;
 
 namespace ConventionBooking
 {
@@ -47,6 +48,9 @@ namespace ConventionBooking
 			services.AddEndpointsApiExplorer();
 			services.AddSwaggerGen(c => {
 				c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title= "Convention Booking API", Version = "v1" });
+					// using System.Reflection;
+				var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+			    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 			});
 		}
 

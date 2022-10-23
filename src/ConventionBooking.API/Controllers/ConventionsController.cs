@@ -28,7 +28,10 @@ public class ConventionsController : ControllerBase
         .ToArray();
     }
 
-    // GET: conventions/
+    /// <summary>
+    /// List all conventions.
+    /// </summary>
+    /// <returns>A list of Convention</returns>
     [HttpGet]
     public IEnumerable<Convention> Get()
     {
