@@ -1,27 +1,31 @@
 const contentData = [
   {
-    title: "Configure other identity providers",
-    link: "https://auth0.com/docs/connections",
+    role: "participant",
+    title: "Signup for a Convention",
+    link: "/signup",  
     description:
-      "Auth0 supports social providers as Facebook, Twitter, Instagram and 100+, Enterprise providers as Microsoft Office 365, Google Apps, Azure, and more. You can also use any OAuth2 Authorization Server."
+      "Signup for a one of our many beer conventions across the world."
   },
   {
-    title: "Enable Multifactor Authentication",
-    link: "https://auth0.com/docs/multifactor-authentication",
+    role: "participant",
+    title: "Reserve a seat at a talk",
+    link: "/reserveaseat",
     description:
-      "Add an extra layer of security by enabling Multi-factor Authentication, requiring your users to provide more than one piece of identifying information. Push notifications, authenticator apps, SMS, and DUO Security are supported."
+      "Often many of our talks given by world famous brew masters are full within minutes. Reserve your seat to hear your favorite brew master talk now!"
   },
   {
-    title: "Anomaly Detection",
-    link: "https://auth0.com/docs/anomaly-detection",
+    role: "talker",
+    title: "Give a talk",
+    link: "/giveatalk",
     description:
-      "Auth0 can detect anomalies and stop malicious attempts to access your application. Anomaly detection can alert you and your users of suspicious activity, as well as block further login attempts."
+      "Are your a passionate brew master, wanting to show the world what you have made and how you have made it. Register to give a talk at one of your conventions around the world and increase your brand value!"
   },
   {
-    title: "Learn About Rules",
-    link: "https://auth0.com/docs/rules",
+    role: "convention-administrator",
+    title: "Manage events and venues",
+    link: "/manage",
     description:
-      "Rules are JavaScript functions that execute when a user authenticates to your application. They run once the authentication process is complete, and you can use them to customize and extend Auth0's capabilities."
+      "Create and maintain the many events and venues around the world."
   }
 ];
 
