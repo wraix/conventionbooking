@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.OpenApi.Models;
 using System.Reflection;
 
 namespace ConventionBooking
@@ -17,7 +18,7 @@ namespace ConventionBooking
     	{
 			var issuer = "https://dev-z1zwwud554psgmmw.eu.auth0.com/";
 			var audience = "https://conventionbooking.local";
-			var origin = "http://localhost:4040";
+			var origin = "http://localhost:3000";
 
 			services.AddCors(options => {
 				options.AddDefaultPolicy(
@@ -46,11 +47,35 @@ namespace ConventionBooking
 
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 			services.AddEndpointsApiExplorer();
-			services.AddSwaggerGen(c => {
-				c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title= "Convention Booking API", Version = "v1" });
-					// using System.Reflection;
+			services.AddSwaggerGen(options => {
+				options.SwaggerDoc("v1", new OpenApiInfo { Title= "Convention Booking API", Version = "v1" });
+
+				options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    			{
+    			    In = ParameterLocation.Header,
+    			    Description = "Please enter a valid token",
+    			    Name = "Authorization",
+    			    Type = SecuritySchemeType.Http,
+    			    BearerFormat = "JWT",
+    			    Scheme = JwtBearerDefaults.AuthenticationScheme
+    			});
+    			options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    			{
+    			    {
+    			        new OpenApiSecurityScheme
+    			        {
+    			            Reference = new OpenApiReference
+    			            {
+    			                Type=ReferenceType.SecurityScheme,
+    			                Id=JwtBearerDefaults.AuthenticationScheme
+    			            }
+    			        },
+    			        new string[]{}
+    			    }
+    			});
+
 				var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-			    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+			    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 			});
 		}
 

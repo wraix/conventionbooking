@@ -5,6 +5,7 @@ using ConventionBooking.Contract;
 namespace ConventionBookingApi.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("conventions")]
 public class ConventionsController : ControllerBase
 {
@@ -15,15 +16,26 @@ public class ConventionsController : ControllerBase
         _logger = logger;
     }
 
-    // POST: conventions/signup
+    /// <summary>
+    /// Signup up for a convention
+    /// </summary>
+    /// <returns>A ConventionSignup confirmation.</returns>
     [HttpPost]
     [Route("signup")]
     [Authorize("Participant")]
     public IEnumerable<ConventionSignup> Signup(Convention convention)
     {
+        // TODO: Implement business logic like
+        //       Check that it is possible for the participant to signup for the convention
+        //       aka. is the venue limit maxed out?
+
+        // TODO: Find participant given idToken
+        var participant = new Participant{ ID = Guid.NewGuid() };
+
         return Enumerable.Range(1, 1).Select(index => new ConventionSignup
         {
-            Name = "",
+            Participant = participant,
+            Convention = convention,
         })
         .ToArray();
     }
@@ -33,6 +45,7 @@ public class ConventionsController : ControllerBase
     /// </summary>
     /// <returns>A list of Convention</returns>
     [HttpGet]
+    [Authorize("Participant")]
     public IEnumerable<Convention> Get()
     {
         return Enumerable.Range(1,3).Select(index => new Convention{
