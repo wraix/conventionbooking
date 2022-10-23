@@ -1,9 +1,6 @@
-using System;
-
 namespace ConventionBooking.Model {
 
-	public class Participant {
-		public Guid ID {get;set;}
+	public class Participant : PersonIdentity {
 	}
 
 }

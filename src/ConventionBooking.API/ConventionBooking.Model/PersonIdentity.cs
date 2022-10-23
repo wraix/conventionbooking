@@ -1,6 +1,6 @@
 namespace ConventionBooking.Model {
 
-	public class Venue {
+	public abstract class PersonIdentity {
 		public Guid ID {get;set;}
 	}
 

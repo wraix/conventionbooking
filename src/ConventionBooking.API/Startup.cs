@@ -59,6 +59,7 @@ namespace ConventionBooking
 				app.UseSwagger();
 				app.UseSwaggerUI(c => {
 					c.SwaggerEndpoint("/swagger/v1/swagger.json", "Convention Booking API V1");
+					c.RoutePrefix = string.Empty;
 				});
 			}
 

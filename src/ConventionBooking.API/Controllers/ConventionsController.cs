@@ -1,21 +1,23 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using ConventionBooking.Model;
+using ConventionBooking.Contract;
 
 namespace ConventionBookingApi.Controllers;
 
 [ApiController]
-[Route("[controller]")]
-public class ConventionSignupController : ControllerBase
+[Route("conventions")]
+public class ConventionsController : ControllerBase
 {
-    private readonly ILogger<ConventionSignupController> _logger;
+    private readonly ILogger<ConventionsController> _logger;
 
-    public ConventionSignupController(ILogger<ConventionSignupController> logger)
+    public ConventionsController(ILogger<ConventionsController> logger)
     {
         _logger = logger;
     }
 
-    [HttpPost(Name = "signup")]
+    // POST: conventions/signup
+    [HttpPost]
+    [Route("signup")]
     [Authorize("Participant")]
     public IEnumerable<ConventionSignup> Signup(Convention convention)
     {
@@ -26,7 +28,8 @@ public class ConventionSignupController : ControllerBase
         .ToArray();
     }
 
-    [HttpGet(Name = "read")]
+    // GET: conventions/
+    [HttpGet]
     public IEnumerable<Convention> Get()
     {
         return Enumerable.Range(1,3).Select(index => new Convention{
