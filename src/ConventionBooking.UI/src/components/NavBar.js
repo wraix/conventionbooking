@@ -50,7 +50,7 @@ const NavBar = () => {
                   exact
                   activeClassName="router-link-exact-active"
                 >
-                  Home
+                  Welcome
                 </NavLink>
               </NavItem>
               {isAuthenticated && (
