@@ -50,6 +50,8 @@ public class ConventionsController : ControllerBase
     {
         return Enumerable.Range(1,3).Select(index => new Convention{
             ID = Guid.NewGuid(),
+            Name = "Convention " + index,
+            Venue = new Venue { ID = Guid.NewGuid(), Name = "Venue" }
         })
         .ToArray();
     }

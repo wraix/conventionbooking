@@ -1,12 +1,13 @@
-import React, { useState } from "react";
-import { Button, Alert } from "reactstrap";
+import React, { useEffect, useState } from "react";
+import { Alert, Button } from "reactstrap";
 import Highlight from "../components/Highlight";
+import ConventionList from "../components/ConventionList";
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 import { getConfig } from "../config";
 import Loading from "../components/Loading";
 
 export const ConventionsComponent = () => {
-  const { apiOrigin = "http://localhost:3001", audience } = getConfig();
+  const { audience, apiConvention = "http://localhost:3001" } = getConfig();
 
   const [state, setState] = useState({
     showResult: false,
@@ -14,11 +15,16 @@ export const ConventionsComponent = () => {
     error: null,
   });
 
+  const [conventions, setConventions] = useState([]);
+
   const {
     getAccessTokenSilently,
     loginWithPopup,
     getAccessTokenWithPopup,
   } = useAuth0();
+
+  // Simplistic load atleast once. also has the side effect or reloading the list when moving from page to page
+  useEffect( () => listConventions(), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleConsent = async () => {
     try {
@@ -34,7 +40,7 @@ export const ConventionsComponent = () => {
       });
     }
 
-    await callApi();
+    await listConventions();
   };
 
   const handleLoginAgain = async () => {
@@ -51,31 +57,25 @@ export const ConventionsComponent = () => {
       });
     }
 
-    await callApi();
+    await listConventions();
   };
 
-  const callApi = async () => {
+  const listConventions = async () => {
     try {
-      const token = await getAccessTokenSilently();
+        const token = await getAccessTokenSilently();
 
-      const response = await fetch(`${apiOrigin}/api/external`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+        const response = await fetch(`${apiConvention}/conventions`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-      const responseData = await response.json();
+        const responseData = await response.json();
+        setConventions(responseData); // replace the state with the new state from api
 
-      setState({
-        ...state,
-        showResult: true,
-        apiMessage: responseData,
-      });
     } catch (error) {
-      setState({
-        ...state,
-        error: error.error,
-      });
+        console.error(error);
+        setConventions([]);
     }
   };
 
@@ -129,13 +129,14 @@ export const ConventionsComponent = () => {
         )}
 
         <Button
-          color="primary"
-          className="mt-5"
-          onClick={callApi}
-          disabled={!audience}
+              color="primary"
+              className="mt-5"
+              onClick={listConventions}
+              disabled={!audience}
         >
-          List Conventions
+          Refresh
         </Button>
+        <ConventionList data={conventions}/ >
       </div>
 
       <div className="result-block-container">

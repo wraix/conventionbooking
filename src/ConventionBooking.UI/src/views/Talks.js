@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button, Alert } from "reactstrap";
 import Highlight from "../components/Highlight";
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 import { getConfig } from "../config";
 import Loading from "../components/Loading";
+import TalksList from "../components/TalksList";
 
 export const TalksComponent = () => {
-  const { apiOrigin = "http://localhost:3001", audience } = getConfig();
+  const { audience, apiConvention = "http://localhost:3001" } = getConfig();
 
   const [state, setState] = useState({
     showResult: false,
@@ -14,11 +15,16 @@ export const TalksComponent = () => {
     error: null,
   });
 
+  const [talks, setTalks] = useState([]);
+
   const {
     getAccessTokenSilently,
     loginWithPopup,
     getAccessTokenWithPopup,
   } = useAuth0();
+
+  // Simplistic load atleast once. also has the side effect or reloading the list when moving from page to page
+  useEffect(() => listTalks(), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleConsent = async () => {
     try {
@@ -34,7 +40,7 @@ export const TalksComponent = () => {
       });
     }
 
-    await callApi();
+    await listTalks();
   };
 
   const handleLoginAgain = async () => {
@@ -51,31 +57,25 @@ export const TalksComponent = () => {
       });
     }
 
-    await callApi();
+    await listTalks();
   };
 
-  const callApi = async () => {
+  const listTalks = async () => {
     try {
-      const token = await getAccessTokenSilently();
+        const token = await getAccessTokenSilently();
 
-      const response = await fetch(`${apiOrigin}/api/external`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+        const response = await fetch(`${apiConvention}/talks`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-      const responseData = await response.json();
+        const responseData = await response.json();
+        setTalks(responseData); // replace the state with new state from api
 
-      setState({
-        ...state,
-        showResult: true,
-        apiMessage: responseData,
-      });
     } catch (error) {
-      setState({
-        ...state,
-        error: error.error,
-      });
+        console.error("listTalks", error);
+        setTalks([]);
     }
   };
 
@@ -129,13 +129,14 @@ export const TalksComponent = () => {
         )}
 
         <Button
-          color="primary"
-          className="mt-5"
-          onClick={callApi}
-          disabled={!audience}
+              color="primary"
+              className="mt-5"
+              onClick={listTalks}
+              disabled={!audience}
         >
-          List Conventions
+          Refresh
         </Button>
+        <TalksList data={talks} />
       </div>
 
       <div className="result-block-container">
