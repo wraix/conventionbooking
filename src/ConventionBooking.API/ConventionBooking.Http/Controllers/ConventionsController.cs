@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using ConventionBooking.Contract;
+using ConventionBooking.Core.Repositories;
 
-namespace ConventionBookingApi.Controllers;
+namespace ConventionBookingApi.Http.Controllers;
 
 [ApiController]
 [Authorize]
@@ -45,9 +46,20 @@ public class ConventionsController : ControllerBase
     /// </summary>
     /// <returns>A list of Convention</returns>
     [HttpGet]
-    [Authorize("Participant")]
+    [AllowAnonymous]
+    [ProducesResponseType(200)]
     public IEnumerable<Convention> Get()
     {
+
+        MySqlRepository r = new MySqlRepository();
+        var venues = r.GetAllVenues();
+
+        foreach ( var v in venues) {
+        _logger.LogInformation($"Venue: {v.ID} {v.Name}");
+        }
+
+        _logger.LogInformation($"Venues: {venues}");
+
         return Enumerable.Range(1,3).Select(index => new Convention{
             ID = Guid.NewGuid(),
             Name = "Convention " + index,

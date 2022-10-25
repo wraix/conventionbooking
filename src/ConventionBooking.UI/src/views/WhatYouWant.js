@@ -1,18 +1,21 @@
 import React, { useState } from "react";
 import { Button, Alert } from "reactstrap";
 import Highlight from "../components/Highlight";
+import RegistrationList from "../components/RegistrationList";
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 import { getConfig } from "../config";
 import Loading from "../components/Loading";
 
 export const WhatYouWantComponent = () => {
-  const { apiOrigin = "http://localhost:3001", audience } = getConfig();
+  const { audience, apiConvention = "http://localhost:3001" } = getConfig();
 
   const [state, setState] = useState({
     showResult: false,
     apiMessage: "",
     error: null,
   });
+
+  const [registrations, setRegistrations] = useState([]);
 
   const {
     getAccessTokenSilently,
@@ -34,7 +37,7 @@ export const WhatYouWantComponent = () => {
       });
     }
 
-    await callApi();
+    await listRegistrations();
   };
 
   const handleLoginAgain = async () => {
@@ -51,31 +54,25 @@ export const WhatYouWantComponent = () => {
       });
     }
 
-    await callApi();
+    await listRegistrations();
   };
 
-  const callApi = async () => {
+  const listRegistrations = async () => {
     try {
-      const token = await getAccessTokenSilently();
+        const token = await getAccessTokenSilently();
 
-      const response = await fetch(`${apiOrigin}/api/external`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+        const response = await fetch(`${apiConvention}/talks`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-      const responseData = await response.json();
+        const responseData = await response.json();
+        setRegistrations(responseData); // replace the state with new state from api
 
-      setState({
-        ...state,
-        showResult: true,
-        apiMessage: responseData,
-      });
     } catch (error) {
-      setState({
-        ...state,
-        error: error.error,
-      });
+        console.error("listTalks", error);
+        setRegistrations([]);
     }
   };
 
@@ -131,11 +128,12 @@ export const WhatYouWantComponent = () => {
         <Button
           color="primary"
           className="mt-5"
-          onClick={callApi}
+          onClick={listRegistrations}
           disabled={!audience}
         >
           What do i want?
         </Button>
+        <RegistrationList data={registrations} />
       </div>
 
       <div className="result-block-container">

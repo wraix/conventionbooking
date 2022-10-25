@@ -136,7 +136,7 @@ export const ConventionsComponent = () => {
         >
           Refresh
         </Button>
-        <ConventionList data={conventions}/ >
+        <ConventionList data={conventions} />
       </div>
 
       <div className="result-block-container">
