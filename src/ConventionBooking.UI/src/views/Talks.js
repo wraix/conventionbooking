@@ -64,14 +64,22 @@ export const TalksComponent = () => {
     try {
         const token = await getAccessTokenSilently();
 
-        const response = await fetch(`${apiConvention}/talks`, {
+        const response = await fetch(`${apiConvention}/events`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
         const responseData = await response.json();
-        setTalks(responseData); // replace the state with new state from api
+
+        // group events by talk
+        let _talks = {};
+        responseData.forEach(ev => {
+          _talks[ev.talk.id] = ev.talk;
+        });
+        console.log(_talks)
+
+        setTalks(Object.values(_talks)); // replace the state with new state from api
 
     } catch (error) {
         console.error("listTalks", error);

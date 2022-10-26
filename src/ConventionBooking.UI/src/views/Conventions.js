@@ -64,14 +64,21 @@ export const ConventionsComponent = () => {
     try {
         const token = await getAccessTokenSilently();
 
-        const response = await fetch(`${apiConvention}/conventions`, {
+        const response = await fetch(`${apiConvention}/events`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
         const responseData = await response.json();
-        setConventions(responseData); // replace the state with the new state from api
+
+        // group events by convention
+        let _conventions = {};
+        responseData.forEach(ev => {
+            _conventions[ev.convention.id] = {name: ev.convention.name, venue: ev.venue};
+        });
+
+        setConventions(Object.values(_conventions)); // replace the state with the new state from api
 
     } catch (error) {
         console.error(error);
