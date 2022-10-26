@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using ConventionBooking.Contract;
 using ConventionBooking.Core.Repositories;
 
-namespace ConventionBookingApi.Http.Controllers;
+namespace ConventionBooking.Http.Controllers;
 
 [ApiController]
 [Authorize]
@@ -18,53 +18,26 @@ public class ConventionsController : ControllerBase
     }
 
     /// <summary>
-    /// Signup up for a convention
+    /// List all conventions. A dimension table of conventions including unscheduled ones and only just created ones.
     /// </summary>
-    /// <returns>A ConventionSignup confirmation.</returns>
-    [HttpPost]
-    [Route("signup")]
-    [Authorize("Participant")]
-    public IEnumerable<ConventionSignup> Signup(Convention convention)
-    {
-        // TODO: Implement business logic like
-        //       Check that it is possible for the participant to signup for the convention
-        //       aka. is the venue limit maxed out?
-
-        // TODO: Find participant given idToken
-        var participant = new Participant{ ID = Guid.NewGuid() };
-
-        return Enumerable.Range(1, 1).Select(index => new ConventionSignup
-        {
-            Participant = participant,
-            Convention = convention,
-        })
-        .ToArray();
-    }
-
-    /// <summary>
-    /// List all conventions.
-    /// </summary>
-    /// <returns>A list of Convention</returns>
+    /// <returns>A list of Events</returns>
     [HttpGet]
     [AllowAnonymous]
     [ProducesResponseType(200)]
     public IEnumerable<Convention> Get()
     {
-
+        // TODO: do connection pooling so each request does not require the API
+        //       to make a new connection.
         MySqlRepository r = new MySqlRepository();
-        var venues = r.GetAllVenues();
+        var dbConventions = r.GetAllConventions();
 
-        foreach ( var v in venues) {
-        _logger.LogInformation($"Venue: {v.ID} {v.Name}");
+        List<Convention> _conventions = new List<Convention>();
+        foreach ( var ce in dbConventions) {
+            _conventions.Add(new Convention{
+                ID = ce.ID,
+                Name = ce.Name
+            });
         }
-
-        _logger.LogInformation($"Venues: {venues}");
-
-        return Enumerable.Range(1,3).Select(index => new Convention{
-            ID = Guid.NewGuid(),
-            Name = "Convention " + index,
-            Venue = new Venue { ID = Guid.NewGuid(), Name = "Venue" }
-        })
-        .ToArray();
+        return _conventions.ToArray();
     }
 }

@@ -4,8 +4,7 @@ namespace ConventionBooking.Contract
 	public class Convention
 	{
 		 public Guid ID { get; set; }
-		 public string Name {get;set;}
-		 public Venue Venue {get; set;}
+		 public string Name { get; set; }
 	}
 #pragma warning restore CS8618
 }
