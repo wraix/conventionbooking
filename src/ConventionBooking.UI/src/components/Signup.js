@@ -1,5 +1,5 @@
 import {React} from "react";
-import { Form, FormGroup, Button,Card, CardBody, CardTitle, CardText, Badge } from "reactstrap"
+import { Form, FormGroup, Button,Card, CardBody, CardTitle, CardText } from "reactstrap"
 
 const Signup = (props) => {
     return (

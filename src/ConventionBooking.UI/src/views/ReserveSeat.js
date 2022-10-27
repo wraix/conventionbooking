@@ -91,13 +91,6 @@ export const ReserveSeatComponent = () => {
         setDescription(_event.talk.description);
         setNumberOfSeats(_event.numberOfSeats);
 
-        // TOOD: Create /registrations/seats to demo a post with input validation
-        // TODO: Fix Presentation agenda on all slides (maybe merge Questions and Github code)
-        // TODO: Fix DB connection to share usign pool for all endpoints
-        // TODO: Fix talker and add description to component
-        // TODO: Rebase code and put it on github.com/wraix/conventionbooking
-        // TODO: Reherse presentation
-
     } catch (error) {
         console.error("listTalks", error);
         setTitle("");

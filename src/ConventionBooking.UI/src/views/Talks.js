@@ -78,9 +78,6 @@ export const TalksComponent = () => {
           _talks[ev.talk.id] = ev.talk;
         });
 
-        // TODO: Fix my events API and UI list
-        // TODO: Fix DB connection to share usign pool for all endpoints
-        // TODO: Fix talker and add description to component
         // TODO: Rebase code and put it on github.com/wraix/conventionbooking
         // TODO: Reherse presentation
 
