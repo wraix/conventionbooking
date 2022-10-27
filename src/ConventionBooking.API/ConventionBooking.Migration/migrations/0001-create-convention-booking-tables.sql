@@ -63,7 +63,7 @@ create table convention_registrations (
 create table person (
     id binary(16) primary key,
     sub varchar(255) not null unique,
-    create_at timestamp not null,
+    created_at timestamp not null,
     deleted_at timestamp null,
     name text,
     address text,

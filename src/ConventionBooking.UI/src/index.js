@@ -23,6 +23,7 @@ const providerConfig = {
   ...(config.audience ? { audience: config.audience } : null),
   redirectUri: window.location.origin,
   onRedirectCallback,
+  scope: 'openid profile email email_verified address phone_number phone_number phone_number_verified'
 };
 
 ReactDOM.render(

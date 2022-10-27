@@ -18,11 +18,12 @@ namespace ConventionBooking
     	{
 			var issuer = "https://dev-z1zwwud554psgmmw.eu.auth0.com/";
 			var audience = "https://conventionbooking.local";
-			var origin = "http://localhost:3000";
+			var origin = "http://localhost:3000"; // SPA
 
+			// Setup API to allow cors from your SPA origin for Authorization header and Content-Type header.
 			services.AddCors(options => {
 				options.AddDefaultPolicy(
-					builder => { builder.WithOrigins(origin).WithHeaders("Authorization");
+					builder => { builder.WithOrigins(origin).WithHeaders("Authorization").WithHeaders("Content-Type");
 				});
 			});
 

@@ -1,4 +1,5 @@
 import {React} from "react";
+import history from "../utils/history";
 import { Table, Button } from "reactstrap"
 
 const ConventionList = (props) => {
@@ -16,7 +17,7 @@ const ConventionList = (props) => {
                     <tr key={row.id ? row.id : ''}>
                         <td>{row.name && row.name ? row.name : 'n/a'}</td>
                         <td>{row.venue && row.venue.name ? row.venue.name : 'n/a'}</td>
-                        <td>{!!row.attending ? "Attending" : <Button>Signup</Button>}</td>
+                        <td>{!!row.attending ? "Attending" : <Button onClick={() => history.push('/signup?id=' + row.id)}>Signup</Button>}</td>
                     </tr>
                 ))}
             </tbody>

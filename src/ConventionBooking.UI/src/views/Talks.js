@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Button, Alert } from "reactstrap";
 import Highlight from "../components/Highlight";
-import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
+import { useAuth0, /*withAuthenticationRequired*/ } from "@auth0/auth0-react";
 import { getConfig } from "../config";
-import Loading from "../components/Loading";
+//import Loading from "../components/Loading";
 import TalksList from "../components/TalksList";
 
 export const TalksComponent = () => {
@@ -18,7 +18,7 @@ export const TalksComponent = () => {
   const [talks, setTalks] = useState([]);
 
   const {
-    getAccessTokenSilently,
+    //getAccessTokenSilently,
     loginWithPopup,
     getAccessTokenWithPopup,
   } = useAuth0();
@@ -62,12 +62,12 @@ export const TalksComponent = () => {
 
   const listTalks = async () => {
     try {
-        const token = await getAccessTokenSilently();
+        //const token = await getAccessTokenSilently();
 
         const response = await fetch(`${apiConvention}/events`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          //headers: {
+          //  Authorization: `Bearer ${token}`,
+          //},
         });
 
         const responseData = await response.json();
@@ -77,7 +77,12 @@ export const TalksComponent = () => {
         responseData.forEach(ev => {
           _talks[ev.talk.id] = ev.talk;
         });
-        console.log(_talks)
+
+        // TODO: Fix my events API and UI list
+        // TODO: Fix DB connection to share usign pool for all endpoints
+        // TODO: Fix talker and add description to component
+        // TODO: Rebase code and put it on github.com/wraix/conventionbooking
+        // TODO: Reherse presentation
 
         setTalks(Object.values(_talks)); // replace the state with new state from api
 
@@ -161,6 +166,7 @@ export const TalksComponent = () => {
   );
 };
 
-export default withAuthenticationRequired(TalksComponent, {
-  onRedirecting: () => <Loading />,
-});
+export default TalksComponent;
+// export default withAuthenticationRequired(TalksComponent, {
+//   onRedirecting: () => <Loading />,
+// });

@@ -1,4 +1,5 @@
 import {React} from "react";
+import history from "../utils/history";
 import { Table, Button } from "reactstrap"
 
 const TalksList = (props) => {
@@ -16,7 +17,7 @@ const TalksList = (props) => {
                     <tr key={row.id ? row.id : ''}>
                         <td>{row.talker && row.talker.name ? row.talker.name : 'n/a'}</td>
                         <td>{row.title ? row.title : 'n/a'}</td>
-                        <td>{!!row.attending ? "Attending" : <Button>Signup</Button>}</td>
+                        <td>{!!row.attending ? "Attending" : <Button onClick={() => history.push('/reserveseat?id=' + row.id)}>Signup</Button>}</td>
                     </tr>
                 ))}
             </tbody>

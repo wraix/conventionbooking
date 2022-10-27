@@ -9,6 +9,7 @@ import Profile from "./views/Profile";
 import Conventions from "./views/Conventions";
 import Talks from "./views/Talks";
 import WhatYouWant from "./views/WhatYouWant";
+import Signup from "./views/Signup";
 import { useAuth0 } from "@auth0/auth0-react";
 import history from "./utils/history";
 
@@ -17,6 +18,7 @@ import "./App.css";
 
 // fontawesome
 import initFontAwesome from "./utils/initFontAwesome";
+import ReserveSeat from "./views/ReserveSeat";
 initFontAwesome();
 
 const App = () => {
@@ -39,8 +41,10 @@ const App = () => {
             <Route path="/" exact component={Home} />
             <Route path="/profile" component={Profile} />
             <Route path="/conventions" component={Conventions} />
+            <Route path="/signup" component={Signup} />
             <Route path="/talks" component={Talks} />
             <Route path="/whatyouwant" component={WhatYouWant} />
+            <Route path="/reserveseat" component={ReserveSeat} />
           </Switch>
         </Container>
       </div>

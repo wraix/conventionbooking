@@ -1,13 +1,18 @@
-import React, { useState } from "react";
-import { Button, Alert } from "reactstrap";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom"
+import { Alert } from "reactstrap";
+import history from "../utils/history";
 import Highlight from "../components/Highlight";
-import RegistrationList from "../components/RegistrationList";
 import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 import { getConfig } from "../config";
 import Loading from "../components/Loading";
+import ReserveSeat from "../components/ReserveSeat";
 
-export const WhatYouWantComponent = () => {
+export const ReserveSeatComponent = () => {
   const { audience, apiConvention = "http://localhost:3001" } = getConfig();
+
+  const search = useLocation().search;
+  const id = new URLSearchParams(search).get('id');
 
   const [state, setState] = useState({
     showResult: false,
@@ -15,7 +20,12 @@ export const WhatYouWantComponent = () => {
     error: null,
   });
 
-  const [registrations, setRegistrations] = useState([]);
+  const [title, setTitle] = useState("");
+  const [description, setDescription]= useState("");
+  const [numberOfSeats, setNumberOfSeats]= useState("");
+
+  // Simplistic load atleast once. also has the side effect or reloading the list when moving from page to page
+  useEffect(() => listTalks(id), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const {
     getAccessTokenSilently,
@@ -37,7 +47,7 @@ export const WhatYouWantComponent = () => {
       });
     }
 
-    await listRegistrations();
+    await listTalks(id);
   };
 
   const handleLoginAgain = async () => {
@@ -54,27 +64,81 @@ export const WhatYouWantComponent = () => {
       });
     }
 
-    await listRegistrations();
+    await listTalks(id);
   };
 
-  const listRegistrations = async () => {
+  const listTalks = async (id) => {
     try {
         const token = await getAccessTokenSilently();
 
-        const response = await fetch(`${apiConvention}/talks`, {
+        const response = await fetch(`${apiConvention}/events`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
         const responseData = await response.json();
-        setRegistrations(responseData); // replace the state with new state from api
+
+        // filter events by talk id
+        let _event = {};
+        responseData.forEach(ev => {
+            if (ev.talk.id === id) {
+                _event = ev;
+            }
+        });
+
+        setTitle(_event.talk.title);
+        setDescription(_event.talk.description);
+        setNumberOfSeats(_event.numberOfSeats);
+
+        // TOOD: Create /registrations/seats to demo a post with input validation
+        // TODO: Fix Presentation agenda on all slides (maybe merge Questions and Github code)
+        // TODO: Fix DB connection to share usign pool for all endpoints
+        // TODO: Fix talker and add description to component
+        // TODO: Rebase code and put it on github.com/wraix/conventionbooking
+        // TODO: Reherse presentation
 
     } catch (error) {
         console.error("listTalks", error);
-        setRegistrations([]);
+        setTitle("");
+        setDescription("");
+        setNumberOfSeats("");
     }
   };
+
+  const signupForTalk = async (talkId) => {
+    try {
+        const token = await getAccessTokenSilently();
+
+        const response = await fetch(`${apiConvention}/registrations/seats`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': "application/json"
+          },
+          body: JSON.stringify({"id": talkId})
+        });
+
+        const responseData = await response.json();
+
+        setState({
+          ...state,
+          showResult: false,
+          apiMessage: responseData,
+        });
+
+
+        // look for ok response and redirect back to talks.
+        history.push('/talks');
+    } catch (error) {
+        setState({
+          ...state,
+          error: error.error,
+        });
+
+        console.error("signupForTalk", error);
+    }
+  }
 
   const handle = (e, fn) => {
     e.preventDefault();
@@ -110,9 +174,9 @@ export const WhatYouWantComponent = () => {
           </Alert>
         )}
 
-        <h1>What you want</h1>
+        <h1>Reserve a Seat</h1>
         <p className="lead">
-          This is what you want to attend and have signed up for or reserved seats at.
+          You still have the oppportunity to reserve a seat for this talk.
         </p>
 
         {!audience && (
@@ -125,15 +189,7 @@ export const WhatYouWantComponent = () => {
           </Alert>
         )}
 
-        <Button
-          color="primary"
-          className="mt-5"
-          onClick={listRegistrations}
-          disabled={!audience}
-        >
-          Refresh
-        </Button>
-        <RegistrationList data={registrations} />
+        <ReserveSeat id={id} title={title} description={description} remaningSeats={numberOfSeats} signupHandler={() => signupForTalk(id)}/>
       </div>
 
       <div className="result-block-container">
@@ -150,6 +206,6 @@ export const WhatYouWantComponent = () => {
   );
 };
 
-export default withAuthenticationRequired(WhatYouWantComponent, {
+export default withAuthenticationRequired(ReserveSeatComponent, {
   onRedirecting: () => <Loading />,
 });

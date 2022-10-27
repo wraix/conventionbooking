@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using ConventionBooking.Contract;
+using ConventionBooking.Core.Models;
 using ConventionBooking.Core.Repositories;
 
 namespace ConventionBooking.Http.Controllers;
@@ -25,22 +26,67 @@ public class RegistrationsController : ControllerBase
     [HttpPost]
     [Route("seats")]
     [Authorize("Participant")]
-    public IEnumerable<SeatReservation> Signup(Talk talk)
+    public IEnumerable<ConventionBooking.Contract.SeatReservation> Signup(ConventionBooking.Contract.EventReference ev)
     {
-        var participant = lookupParticipant();
+        MySqlRepository r = new MySqlRepository();
+
+        var participant = createOrLookupParticipant(GetSubject());
 
         // TODO: Implement business logic like
         //       Check that it is possible for the participant to reserve the seat
         //       aka. is the number of seats maxed out?
 
-        // TODO: Register in storage
+        // Sanity check existance and read for response hydration
+        var conventionEvent = r.GetConventionEventViewFromTalkID(ev.ID);
+        if (conventionEvent == null) {
+            throw new Exception("event not found");
+            //return new List<ConventionBooking.Contract.SeatReservation>(); // return the empty set.
+        }
 
-        return Enumerable.Range(1, 1).Select(index => new SeatReservation
-        {
-            Participant = participant,
-            Talk = talk,
-        })
-        .ToArray();
+        // Marshal Contracts to Models
+        PersonReference _participant = new PersonReference(participant.ID);
+        ConventionEventReference _event = new ConventionEventReference(conventionEvent.ID);
+
+        var newSeatingReservationRef = r.CreateSeatingReservation(_event, _participant);
+
+        // Marshal Models to Contracts
+        var l = new List<ConventionBooking.Contract.SeatReservation>{
+            new ConventionBooking.Contract.SeatReservation
+            {
+                Participant = participant,
+                Event = new Event{
+                    ID = conventionEvent.ID,
+                    Convention = new Contract.Convention
+                    {
+                        ID = conventionEvent.ConventionID,
+                        Name = conventionEvent.ConventionName
+                    },
+                    Talk = new Contract.Talk
+                    {
+                        ID = conventionEvent.TalkID,
+                        Title = conventionEvent.TalkTitle,
+                        Description = conventionEvent.TalkDescription,
+                        Talker = new Contract.Talker
+                        {
+                            ID = conventionEvent.TalkTalkerID
+                        }
+                    },
+                    Venue = new Contract.Venue
+                    {
+                        ID = conventionEvent.VenueID,
+                        Name = conventionEvent.VenueName,
+                        Address = conventionEvent.VenueAddress
+                    },
+                    StartsAt = conventionEvent.StartsAt,
+                    EndsAt = conventionEvent.EndsAt,
+                    NumberOfSeats = conventionEvent.NumberOfSeats
+                }
+            }
+        };
+
+        _logger.LogInformation($"created seat reservation {newSeatingReservationRef.ID}");
+
+        return l.ToArray();
     }
 
     /// <summary>
@@ -50,26 +96,46 @@ public class RegistrationsController : ControllerBase
     [HttpPost]
     [Route("conventions")]
     [Authorize("Participant")]
-    public IEnumerable<ConventionSignup> Signup(Convention convention)
+    public IEnumerable<ConventionSignup> Signup(ConventionBooking.Contract.ConventionReference convention)
     {
+        // TODO: do connection pooling so each request does not require the API
+        //       to make a new connection. This will severely impact scaling of the api.
+        MySqlRepository r = new MySqlRepository();
+
+        var participant = createOrLookupParticipant(GetSubject());
+
         // TODO: Implement business logic like
         //       Check that it is possible for the participant to signup for the convention
         //       aka. is the venue limit maxed out?
 
-        // TODO: Find participant given idToken
-        var participant = new Participant{ ID = Guid.NewGuid() };
+        // Sanity check existance and read for response hydration
+        var conventionEvent = r.GetAtleastOneConventionEventByConventionID(convention.ID);
+        if (conventionEvent == null) {
+            throw new Exception("event with convention id not found");
+        }
 
-        // TODO: do connection pooling so each request does not require the API
-        //       to make a new connection.
-        MySqlRepository r = new MySqlRepository();
-        var dbTalks = r.GetAllTalks();
+        // Marshal Contracts to Models
+        PersonReference _participant = new PersonReference(participant.ID);
+        ConventionEventReference _event = new ConventionEventReference(conventionEvent.ConventionID);
 
-        return Enumerable.Range(1, 1).Select(index => new ConventionSignup
-        {
-            Participant = participant,
-            Convention = convention,
-        })
-        .ToArray();
+        var newConventionRegistration = r.CreateConventionRegistration(_event, _participant);
+
+        // Marshal Models to Contract
+        var l = new List<ConventionBooking.Contract.ConventionSignup>{
+            new ConventionBooking.Contract.ConventionSignup
+            {
+                Participant = participant,
+                Convention = new Contract.Convention
+                {
+                    ID = convention.ID,
+                    Name = conventionEvent.ConventionName
+                }
+            }
+        };
+
+        _logger.LogInformation($"created convetion registration {newConventionRegistration.ID}");
+
+        return l.ToArray();
     }
 
     /// <summary>
@@ -80,23 +146,78 @@ public class RegistrationsController : ControllerBase
     [Authorize("Participant")]
     public Registrations Get()
     {
-        // TODO: Find participant given idToken, decorate result set with signup data.
-        var participant = new Participant{ ID = Guid.NewGuid() };
+        // TODO: do connection pooling so each request does not require the API
+        //       to make a new connection. This will severely impact scaling of the api.
+        MySqlRepository r = new MySqlRepository();
 
-        // Lookup SeatReservation for Participant
-        // Lookup ConventionSignup for Participant
+        var participant = createOrLookupParticipant(GetSubject());
+
+        // Marshal Contracts to Models
+        PersonReference _participant = new PersonReference(participant.ID);
+
+        var dbRegistrations = r.GetAllRegistrations(_participant);
+
+        List<ConventionSignup> _conventionSignups = new List<ConventionSignup>();
+        List<SeatReservation> _seatReservations = new List<SeatReservation>();
+
+        foreach ( var reg in dbRegistrations) {
+            if (reg.IsConventionRegistration > 0) {
+                _conventionSignups.Add(new ConventionSignup{
+                    Convention = new Contract.Convention
+                    {
+                        ID = reg.ConventionID,
+                        Name = reg.ConventionName
+                    },
+                    Participant = new Participant{ID = participant.ID}
+                });
+            }
+
+            if (reg.IsSeatReservation > 0) {
+                _seatReservations.Add(new SeatReservation{
+                    ID = reg.SeatingReservationID,
+                    Participant = new Participant{ID = participant.ID},
+                    Event = new Event{
+                        ID = reg.ID,
+                        Convention = new Contract.Convention
+                        {
+                            ID = reg.ConventionID,
+                            Name = reg.ConventionName
+                        },
+                        Talk = new Contract.Talk
+                        {
+                            ID = reg.TalkID,
+                            Title = reg.TalkTitle,
+                            Description = reg.TalkDescription,
+                            Talker = new Contract.Talker
+                            {
+                                ID = reg.TalkTalkerID
+                            }
+                        },
+                        Venue = new Contract.Venue
+                        {
+                            ID = reg.VenueID,
+                            Name = reg.VenueName,
+                            Address = reg.VenueAddress
+                        },
+                        StartsAt = reg.StartsAt,
+                        EndsAt = reg.EndsAt,
+                        NumberOfSeats = reg.NumberOfSeats
+                    }
+                });
+            }
+        }
 
         var registrations = new Registrations {
-            ReservedSeatsAtTalks = new List<SeatReservation>(),
-            SignedUpForConventions = new List<ConventionSignup>()
+            participant = participant,
+            ReservedSeatsAtTalks = _seatReservations,
+            SignedUpForConventions = _conventionSignups
         };
 
         return registrations;
     }
 
 
-    // Lookup participant from authorized identity.
-    private Participant lookupParticipant() {
+    private Claim GetSubject() {
         var identity = HttpContext.User.Identity as ClaimsIdentity;
         if (identity == null) // Guard
         {
@@ -107,39 +228,16 @@ public class RegistrationsController : ControllerBase
         if (sub == null) {
             throw new Exception("claim nameidentifier not found");
         }
+        return sub;
+    }
 
-        var participants = new List<Participant>{
-            new Participant{ ID = Guid.NewGuid(), Sub = "qwerty" },
-            new Participant{ ID = Guid.NewGuid(), Sub = sub.Value },
-            new Participant{ ID = Guid.NewGuid(), Sub = "12345" }
-        };
-
-        Participant? foundParticipant = null;
-        foreach (Participant p in participants) {
-            if (p.Sub == sub.Value) {
-                foundParticipant = p;
-                break;
-            }
+    private Participant createOrLookupParticipant(Claim sub) {
+        MySqlRepository r = new MySqlRepository();
+        var person = r.LookupPersonReferenceBySub(sub.Value);
+        if (person == null) {
+            person = r.CreatePerson(sub.Value);
         }
 
-        if (foundParticipant == null) {
-            throw new Exception("participant not found");
-        }
-        return foundParticipant;
-
-        /*IEnumerable<Claim> claims = identity.Claims;
-        foreach (Claim c in claims)
-        {
-            if (c.Type == ClaimTypes.NameIdentifier) {
-                sub = c.Value;
-            }
-            _logger.LogInformation($"Claim: {c}");
-        }
-        _logger.LogInformation($"Subject: {sub}");*/
-
-        /*if (sub.Length <= 0) // Guard
-        {
-          throw new Exception("participant not found");
-        }*/
+        return new Participant{ID = person.ID};
     }
 }

@@ -1,13 +1,18 @@
-import React, { useEffect, useState } from "react";
-import { Alert, Button } from "reactstrap";
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom"
+import { Alert } from "reactstrap";
+import history from "../utils/history";
 import Highlight from "../components/Highlight";
-import ConventionList from "../components/ConventionList";
-import { useAuth0, /*withAuthenticationRequired*/ } from "@auth0/auth0-react";
+import { useAuth0, withAuthenticationRequired } from "@auth0/auth0-react";
 import { getConfig } from "../config";
-//import Loading from "../components/Loading";
+import Loading from "../components/Loading";
+import Signup from "../components/Signup";
 
-export const ConventionsComponent = () => {
+export const SignupComponent = () => {
   const { audience, apiConvention = "http://localhost:3001" } = getConfig();
+
+  const search = useLocation().search;
+  const id = new URLSearchParams(search).get('id');
 
   const [state, setState] = useState({
     showResult: false,
@@ -15,16 +20,17 @@ export const ConventionsComponent = () => {
     error: null,
   });
 
-  const [conventions, setConventions] = useState([]);
+  const [name, setName] = useState("");
+  const [venue, setVenue]= useState("");
+
+  // Simplistic load atleast once. also has the side effect or reloading the list when moving from page to page
+  useEffect(() => listConventions(id), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const {
-    //getAccessTokenSilently,
+    getAccessTokenSilently,
     loginWithPopup,
     getAccessTokenWithPopup,
   } = useAuth0();
-
-  // Simplistic load atleast once. also has the side effect or reloading the list when moving from page to page
-  useEffect( () => listConventions(), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleConsent = async () => {
     try {
@@ -40,7 +46,7 @@ export const ConventionsComponent = () => {
       });
     }
 
-    await listConventions();
+    await listConventions(id);
   };
 
   const handleLoginAgain = async () => {
@@ -57,34 +63,72 @@ export const ConventionsComponent = () => {
       });
     }
 
-    await listConventions();
+    await listConventions(id);
   };
 
-  const listConventions = async () => {
+  const listConventions = async (id) => {
     try {
-        //const token = await getAccessTokenSilently();
+        const token = await getAccessTokenSilently();
 
         const response = await fetch(`${apiConvention}/events`, {
-          //headers: {
-          //  Authorization: `Bearer ${token}`,
-          //},
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         const responseData = await response.json();
 
-        // group events by convention
-        let _conventions = {};
+        // filter events by talk id
+        let _event = {};
         responseData.forEach(ev => {
-            _conventions[ev.convention.id] = {id: ev.convention.id, name: ev.convention.name, venue: ev.venue};
+            if (ev.convention.id === id) {
+                _event = ev;
+            }
         });
 
-        setConventions(Object.values(_conventions)); // replace the state with the new state from api
+        setName(_event.convention.name);
+        setVenue(_event.venue.name);
 
     } catch (error) {
-        console.error(error);
-        setConventions([]);
+        console.error("listConventions", error);
+        setName("");
+        setVenue("");
     }
   };
+
+  const signupForConvention = async (conventionId) => {
+    try {
+        const token = await getAccessTokenSilently();
+
+        const response = await fetch(`${apiConvention}/registrations/conventions`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': "application/json"
+          },
+          body: JSON.stringify({"id": conventionId})
+        });
+
+        const responseData = await response.json();
+
+        setState({
+          ...state,
+          showResult: false,
+          apiMessage: responseData,
+        });
+
+
+        // look for ok response and redirect back to talks.
+        history.push('/conventions');
+    } catch (error) {
+        setState({
+          ...state,
+          error: error.error,
+        });
+
+        console.error("signupForConvention", error);
+    }
+  }
 
   const handle = (e, fn) => {
     e.preventDefault();
@@ -120,9 +164,9 @@ export const ConventionsComponent = () => {
           </Alert>
         )}
 
-        <h1>Conventions</h1>
+        <h1>Signup for Convention</h1>
         <p className="lead">
-          Look trough all the conventions we have prepared for you and signup for the ones you find interesting.
+          You still have the oppportunity to go to this Convention.
         </p>
 
         {!audience && (
@@ -135,15 +179,7 @@ export const ConventionsComponent = () => {
           </Alert>
         )}
 
-        <Button
-              color="primary"
-              className="mt-5"
-              onClick={listConventions}
-              disabled={!audience}
-        >
-          Refresh
-        </Button>
-        <ConventionList data={conventions} />
+        <Signup id={id} name={name} venue={venue} signupHandler={() => signupForConvention(id)}/>
       </div>
 
       <div className="result-block-container">
@@ -160,7 +196,6 @@ export const ConventionsComponent = () => {
   );
 };
 
-export default ConventionsComponent;
-//export default withAuthenticationRequired(ConventionsComponent, {
-//  onRedirecting: () => <Loading />,
-//});
+export default withAuthenticationRequired(SignupComponent, {
+  onRedirecting: () => <Loading />,
+});

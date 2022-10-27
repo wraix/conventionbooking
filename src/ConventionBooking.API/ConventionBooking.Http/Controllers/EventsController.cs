@@ -18,7 +18,7 @@ public class EventsController : ControllerBase
     }
 
     /// <summary>
-    /// List all events. Defined as an event that has a convention, venue and a talk. This inclused cancelled events.
+    /// List all events. Defined as an event that has a convention, venue and a talk. This includes cancelled events.
     /// </summary>
     /// <returns>A list of Event</returns>
     [HttpGet]

@@ -2,14 +2,14 @@ const contentData = [
   {
     role: "participant",
     title: "Signup for a Convention",
-    link: "/signup",  
+    link: "/conventions",
     description:
-      "Signup for a one of our many beer conventions across the world."
+      "Signup for one of our many beer conventions across the world."
   },
   {
     role: "participant",
     title: "Reserve a seat at a talk",
-    link: "/reserveaseat",
+    link: "/talks",
     description:
       "Often many of our talks given by world famous brew masters are full within minutes. Reserve your seat to hear your favorite brew master talk now!"
   },
