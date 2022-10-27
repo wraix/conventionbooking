@@ -10,8 +10,8 @@
     "spa": "react-scripts start",
     "server": "node server.js",
     "server:dev": "nodemon server.js",
-    "dev": "npm-run-all --parallel spa api-server:dev",
-    "prod": "npm-run-all --parallel server api-server"
+    "dev": "npm-run-all --parallel spa",
+    "prod": "npm-run-all --parallel server"
   },
   "dependencies": {
     "@auth0/auth0-react": "^1.12.0",

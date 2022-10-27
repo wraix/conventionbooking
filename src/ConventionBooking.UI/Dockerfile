@@ -39,7 +39,6 @@ COPY --from=build /app/src/auth_config.json ./src/auth_config.json
 COPY --from=build /app/server.js .
 
 EXPOSE 3000
-EXPOSE 3001
 
 ENV SERVER_PORT=3000
 ENV NODE_ENV production
