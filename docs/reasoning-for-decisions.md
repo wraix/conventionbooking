@@ -19,4 +19,3 @@ to truly allow for scalability of system to millions of concurrent users or it m
 Auth0 also provides certified client libraries to build applications for most languages and in this particular case a library for React. Do not build your own client library as the oauth protocol is quite hard to get right and can cause severe security incidents if implemented wrong.
 Alternatively one can use a client library on the list here: https://openid.net/developers/certified/
 
-## ?
