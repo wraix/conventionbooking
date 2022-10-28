@@ -15,10 +15,10 @@
     meaning the Initiating Party generates a secret key on the public client and calculates a cryptographic hash as of the secret, and puts this hash in the authorization request. Upon exchanging the authorization code for a token using an https request, the secret is added, so the token server can verify that it was indeed this client session that performed the flow by redoing the calculation and matching it to the hash it got sent.
 
   * Hybrid flow
-    Mandates a nonce.
+    Seperates front and back channel. Mandates a nonce.
 
   * Implicit flow
-    Mandates a nonce. Deprecated should not be used, use Authorization Code flow with PKCE instead.
+    Used for clients that can't keep a secret and access token is returned immediately. Mandates a nonce. Deprecated should not be used, use Authorization Code flow with PKCE instead.
 
   * Device Code Grant flow
     Used for devices with limited input device options. The client starts a flow and receives a code for dispaying to the user. Client will poll on the flow to check if user authenticated and authorized.
