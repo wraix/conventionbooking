@@ -38,6 +38,7 @@ To do this, first copy `src/auth_config.json.example` into a new file in the sam
   "clientId": "{YOUR AUTH0 CLIENT ID}",
   "audience": "{YOUR AUTH0 API_IDENTIFIER}",
   "appOrigin": "{OPTIONAL: THE BASE URL OF YOUR APPLICATION (default: http://localhost:3000)}",
+  "apiConvention": "{The Booking System API URL}"
 }
 ```
 
